@@ -101,8 +101,8 @@ function run(p: Uint8Array, q: Uint8Array): { o: Uint8Array; c: number } {
         if (op === 0x10) r = (a + b) | 0; // ADD, wraps
         else if (op === 0x11) r = (a - b) | 0; // SUB, wraps
         else if (op === 0x12) r = Math.imul(a, b); // MUL, low 32 bits exactly
-        else if (op === 0x13) { if (b === 0) return end(4); r = a === -2147483648 && b === -1 ? a : (a / b) | 0; } // DIV, truncates toward zero
-        else if (op === 0x14) { if (b === 0) return end(4); r = b === -1 ? 0 : (a % b) | 0; } // MOD, sign of a
+        else if (op === 0x13) { if (b === 0) return end(4); r = (a / b) | 0; } // DIV, truncates toward zero; (a/b)|0 already wraps INT_MIN/-1 to INT_MIN via ToInt32
+        else if (op === 0x14) { if (b === 0) return end(4); r = (a % b) | 0; } // MOD, sign of a; x % -1 is always 0/-0 in JS, so no special case needed
         else if (op === 0x15) { if (b === 0) return end(4); r = Math.floor((a >>> 0) / (b >>> 0)) | 0; } // DIVU, unsigned
         else if (op === 0x16) { if (b === 0) return end(4); r = ((a >>> 0) % (b >>> 0)) | 0; } // MODU, unsigned
         else if (op === 0x18) r = a & b; // AND
